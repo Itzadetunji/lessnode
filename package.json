@@ -1,0 +1,37 @@
+{
+	"name": "lessnode",
+	"version": "0.1.0",
+	"description": "A lightweight utility package for Node.js.",
+	"license": "MIT",
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "bun build ./src/index.ts --outdir ./dist --target node && bunx tsc --project tsconfig.json --emitDeclarationOnly",
+		"typecheck": "bunx tsc --noEmit",
+		"clean": "rm -rf dist",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write ."
+	},
+	"keywords": [
+		"bun",
+		"typescript",
+		"node"
+	],
+	"engines": {
+		"bun": ">=1.1.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.5.2",
+		"typescript": "latest"
+	}
+}
