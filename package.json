@@ -16,7 +16,8 @@
 		"dist"
 	],
 	"scripts": {
-		"build": "bun build ./src/index.ts --outdir ./dist --target node && bunx tsc --project tsconfig.json --emitDeclarationOnly",
+		"dev": "bun run src/index.ts",
+		"build": "bunx tsc --project tsconfig.json",
 		"typecheck": "bunx tsc --noEmit",
 		"clean": "rm -rf dist",
 		"lint": "biome check .",
@@ -32,6 +33,11 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.2",
+		"@types/node": "^26.1.0",
 		"typescript": "latest"
+	},
+	"dependencies": {
+		"@clack/prompts": "^1.7.0",
+		"picocolors": "^1.1.1"
 	}
 }
