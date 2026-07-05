@@ -1,16 +1,10 @@
-import {
-	intro,
-	select,
-	multiselect,
-	isCancel,
-	cancel,
-	outro,
-} from "@clack/prompts";
-import pc from "picocolors";
-import { readFile, writeFile, readdir } from "fs/promises";
+#!/usr/bin/env node
+
 import os from "node:os";
+import { intro, outro } from "@clack/prompts";
+import pc from "picocolors";
 import { lessNodeMac } from "./mac";
-import { OsType, osTypes } from "./types";
+import { type OsType, osTypes } from "./types";
 
 intro(pc.bgCyan(pc.white("lessnode")));
 
