@@ -21,13 +21,6 @@
 ## Run locally
 
 ```bash
-bun install
-bun run dev
-```
-
-## Build
-
-```bash
-bun run build
-bun run typecheck
+npx lessnode
+bunx lessnode
 ```

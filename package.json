@@ -1,9 +1,18 @@
 {
 	"name": "lessnode",
 	"version": "0.2.3",
-	"description": "A lightweight utility package for Node.js.",
+	"description": "Interactive CLI to find and safely delete node_modules folders from selected directories on macOS.",
+	"author": "Adetunji Adeyinka",
 	"license": "MIT",
 	"type": "module",
+	"homepage": "https://github.com/Itzadetunji/lessnode#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Itzadetunji/lessnode.git"
+	},
+	"bugs": {
+		"url": "https://github.com/Itzadetunji/lessnode/issues"
+	},
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"bin": {
@@ -27,7 +36,13 @@
 		"lint:fix": "biome check --write ."
 	},
 	"keywords": [
+		"cli",
 		"bun",
+		"node-modules",
+		"cleanup",
+		"disk-space",
+		"developer-tools",
+		"macos",
 		"typescript",
 		"node"
 	],
