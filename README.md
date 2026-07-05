@@ -1,25 +1,33 @@
 # lessnode
 
-A lightweight TypeScript package scaffolded for Bun.
+`lessnode` is a Bun + TypeScript CLI that helps you find and remove `node_modules` folders from selected root directories on your machine.
 
-## Install
+## What it does
 
-```bash
-bun add lessnode
-```
+- Detects your OS and runs the macOS cleanup flow.
+- Lets you pick one or more root folders from your home directory.
+- Recursively finds nested `node_modules` folders.
+- Shows the results in an interactive multi-select prompt.
+- Deletes only the folders you confirm.
 
-## Usage
+## How it works
 
-```ts
-import { greet } from "lessnode";
+1. Run the CLI.
+2. Select the root directories to scan.
+3. Select the `node_modules` folders you want to remove.
+4. Confirm deletion.
+5. `lessnode` removes those folders with recursive delete.
 
-console.log(greet("World"));
-```
-
-## Development
+## Run locally
 
 ```bash
 bun install
+bun run dev
+```
+
+## Build
+
+```bash
 bun run build
 bun run typecheck
 ```
