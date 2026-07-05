@@ -3,6 +3,8 @@ import os from "node:os";
 import { multiselect } from "@clack/prompts";
 import pc from "picocolors";
 import type { ModuleFolder } from "./types";
+import { promisify } from "util";
+import { exec } from "child_process";
 
 export async function lessNodeMac() {
 	const rootFolders = await selectRootFolders();
@@ -17,6 +19,7 @@ export async function lessNodeMac() {
 		})) ?? [];
 
 	console.log(pc.greenBright(pc.bold(`Deleting these modules 👇\n`)));
+
 	for (const module of selectedModules as unknown as ModuleFolder[]) {
 		console.log(pc.greenBright(pc.bold(module.label)));
 	}
@@ -86,7 +89,7 @@ const selectModuleFolders = async (
 			const path = `${entry.parentPath}/${entry.name}`;
 
 			if (entry.name === "node_modules") {
-				moduleFolders.push({ label: path, value: path });
+				moduleFolders.push({ label: await getFolderSize(path), value: path });
 				continue;
 			}
 			await getfolders(path);
@@ -105,3 +108,8 @@ const deleteModule = async (module: string): Promise<void> => {
 	console.log(pc.greenBright(pc.bold(`Deleting module: ${module}`)));
 	await rm(module, { recursive: true });
 };
+
+async function getFolderSize(path: string): Promise<string> {
+	const { stdout } = await promisify(exec)(`du -sh "${path}"`);
+	return stdout.trim();
+}
