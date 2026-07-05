@@ -2,6 +2,7 @@ import { readdir, rm } from "node:fs/promises";
 import os from "node:os";
 import { multiselect } from "@clack/prompts";
 import pc from "picocolors";
+import type { ModuleFolder } from "./types";
 
 export async function lessNodeMac() {
 	const rootFolders = await selectRootFolders();
@@ -12,15 +13,12 @@ export async function lessNodeMac() {
 	const selectedModules =
 		(await multiselect({
 			message: "Select your modules",
-			options: moduleFolders.map((folder) => ({
-				label: folder,
-				value: folder,
-			})),
+			options: moduleFolders,
 		})) ?? [];
 
 	console.log(pc.greenBright(pc.bold(`Deleting these modules 👇\n`)));
-	for (const module of selectedModules as string[]) {
-		console.log(pc.greenBright(pc.bold(module)));
+	for (const module of selectedModules as unknown as ModuleFolder[]) {
+		console.log(pc.greenBright(pc.bold(module.label)));
 	}
 
 	console.log("\n");
@@ -30,8 +28,8 @@ export async function lessNodeMac() {
 	);
 
 	if (confirmDelete) {
-		for (const module of selectedModules as string[]) {
-			await deleteModule(module);
+		for (const module of selectedModules as unknown as ModuleFolder[]) {
+			await deleteModule(module.value);
 		}
 	} else {
 		console.log(pc.yellowBright(pc.bold("\nCancelled node cleanup")));
@@ -61,10 +59,12 @@ const selectRootFolders = async (): Promise<string[]> => {
 	return rootFoldersSelect as string[];
 };
 
-const selectModuleFolders = async (folders: string[]): Promise<string[]> => {
+const selectModuleFolders = async (
+	folders: string[],
+): Promise<ModuleFolder[]> => {
 	const entries = await readdir(folders[0], { withFileTypes: true });
 	const stack: string[] = [];
-	const moduleFolders: { label: string; value: string }[] = [];
+	const moduleFolders: ModuleFolder[] = [];
 
 	entries.forEach((entry) => {
 		if (!entry.isDirectory() || entry.name.endsWith(".app")) return;
@@ -78,7 +78,7 @@ const selectModuleFolders = async (folders: string[]): Promise<string[]> => {
 		await getfolders(folder);
 	}
 
-	async function getfolders(folder: string): Promise<void> {
+	async function getfolders(folder: string): Promise<ModuleFolder[]> {
 		const entries = await readdir(folder, { withFileTypes: true });
 
 		for (const entry of entries) {
@@ -91,7 +91,7 @@ const selectModuleFolders = async (folders: string[]): Promise<string[]> => {
 			}
 			await getfolders(path);
 		}
-		return;
+		return [];
 	}
 
 	console.log(
@@ -99,6 +99,7 @@ const selectModuleFolders = async (folders: string[]): Promise<string[]> => {
 	);
 
 	return moduleFolders;
+};
 
 const deleteModule = async (module: string): Promise<void> => {
 	console.log(pc.greenBright(pc.bold(`Deleting module: ${module}`)));
