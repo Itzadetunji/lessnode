@@ -1,10 +1,10 @@
+import { exec } from "node:child_process";
 import { readdir, rm } from "node:fs/promises";
 import os from "node:os";
+import { promisify } from "node:util";
 import { multiselect } from "@clack/prompts";
 import pc from "picocolors";
 import type { ModuleFolder } from "./types";
-import { promisify } from "util";
-import { exec } from "child_process";
 
 export async function lessNodeMac() {
 	const rootFolders = await selectRootFolders();
@@ -48,7 +48,7 @@ const selectRootFolders = async (): Promise<string[]> => {
 		.map((entry) => {
 			return {
 				label: entry.name,
-				value: entry.parentPath + "/" + entry.name,
+				value: `${entry.parentPath}/${entry.name}`,
 			};
 		})
 		.sort((a, b) => a.label.localeCompare(b.label));
@@ -89,7 +89,7 @@ const selectModuleFolders = async (
 			const path = `${entry.parentPath}/${entry.name}`;
 
 			if (entry.name === "node_modules") {
-				moduleFolders.push({ label: await getFolderSize(path), value: path });
+				moduleFolders.push({ label: await path, value: path });
 				continue;
 			}
 			await getfolders(path);
@@ -109,7 +109,7 @@ const deleteModule = async (module: string): Promise<void> => {
 	await rm(module, { recursive: true });
 };
 
-async function getFolderSize(path: string): Promise<string> {
+async function _getFolderSize(path: string): Promise<string> {
 	const { stdout } = await promisify(exec)(`du -sh "${path}"`);
 	return stdout.trim();
 }
