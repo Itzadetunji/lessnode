@@ -1,83 +1,106 @@
-import {
-	intro,
-	select,
-	multiselect,
-	isCancel,
-	cancel,
-	outro,
-} from "@clack/prompts";
-import { readdir } from "fs/promises";
-import pc from "picocolors";
+import { readdir, rm } from "node:fs/promises";
 import os from "node:os";
+import { multiselect } from "@clack/prompts";
+import pc from "picocolors";
 
+export async function lessNodeMac() {
+	const rootFolders = await selectRootFolders();
+	const moduleFolders = await selectModuleFolders(rootFolders);
 
-export async function lessNodeMac () {
-  const rootFolders = await selectRootFolders()
-  // console.log(rootFolders)
-  const moduleFolders = await selectModuleFolders(rootFolders)
+	console.log("Click to go to the folder");
 
-  
-  console.log("Click to go to the folder")
-  const selectedModules = await multiselect({
-    message: "Select your modules",
-    options: moduleFolders.map((folder) => ({ label: folder, value: folder }))
-  }) ?? [];
+	const selectedModules =
+		(await multiselect({
+			message: "Select your modules",
+			options: moduleFolders.map((folder) => ({
+				label: folder,
+				value: folder,
+			})),
+		})) ?? [];
 
-  // console.log(pc.green(pc.bold(files.join("\n"))));
+	console.log(pc.greenBright(pc.bold(`Deleting these modules 👇\n`)));
+	for (const module of selectedModules as string[]) {
+		console.log(pc.greenBright(pc.bold(module)));
+	}
+
+	console.log("\n");
+
+	const confirmDelete = await confirm(
+		"Are you sure you want to delete the modules?",
+	);
+
+	if (confirmDelete) {
+		for (const module of selectedModules as string[]) {
+			await deleteModule(module);
+		}
+	} else {
+		console.log(pc.yellowBright(pc.bold("\nCancelled node cleanup")));
+		process.exit(0);
+	}
 }
 
-const selectRootFolders = async (): Promise<string[]> =>{
-  const home  = os.homedir();
-  const entries = await readdir(home, { withFileTypes: true });
-  const rootFolders = entries.filter((entry) => entry.isDirectory() && !entry.name. startsWith(".")).map((entry) => {
-    return {
-      label: entry.name,
-      value: entry.parentPath + "/" + entry.name,
-    }
-  }).sort((a, b) => a.label.localeCompare(b.label));
-  
-  const rootFoldersSelect = await multiselect({
-    message: "Select your root folders",
-    options: rootFolders
-  }) ?? [];
+const selectRootFolders = async (): Promise<string[]> => {
+	const home = os.homedir();
+	const entries = await readdir(home, { withFileTypes: true });
+	const rootFolders = entries
+		.filter((entry) => entry.isDirectory() && !entry.name.startsWith("."))
+		.map((entry) => {
+			return {
+				label: entry.name,
+				value: entry.parentPath + "/" + entry.name,
+			};
+		})
+		.sort((a, b) => a.label.localeCompare(b.label));
 
-  return rootFoldersSelect as string[];
-}
+	const rootFoldersSelect =
+		(await multiselect({
+			message: "Select your root folders",
+			options: rootFolders,
+		})) ?? [];
 
-const selectModuleFolders = async (folders: string[]): Promise<string[]> =>{
-  const entries = await readdir(folders[0], { withFileTypes: true });
-  const stack: string[] = [];
-  let moduleFolders: string[] = [];
+	return rootFoldersSelect as string[];
+};
 
-  entries.forEach((entry) => {
-    if (!entry.isDirectory() || entry.name.endsWith(".app")) return;
-    stack.push(entry.parentPath + "/" + entry.name);
-    console.log(entry.parentPath + "/" + entry.name);
-  })
-  console.log("\n")
-  console.log(pc.greenBright(pc.bold(`Stack: ${stack.join(", ")}`)));
+const selectModuleFolders = async (folders: string[]): Promise<string[]> => {
+	const entries = await readdir(folders[0], { withFileTypes: true });
+	const stack: string[] = [];
+	const moduleFolders: { label: string; value: string }[] = [];
 
-  for (const folder of stack) {
-    await getfolders(folder);
-  }
+	entries.forEach((entry) => {
+		if (!entry.isDirectory() || entry.name.endsWith(".app")) return;
+		stack.push(`${entry.parentPath}/${entry.name}`);
+		console.log(`${entry.parentPath}/${entry.name}`);
+	});
+	console.log("\n");
+	console.log(pc.greenBright(pc.bold(`Stack: ${stack.join(", ")}`)));
 
-  async function getfolders (folder:string): Promise<void> {
-    const entries = await readdir(folder, { withFileTypes: true });
-  
-    for(const entry of entries) {
-      if (!entry.isDirectory() || entry.name.endsWith(".app")) continue;
-      const path = entry.parentPath + "/" + entry.name;
-      
-      if(entry.name === ("node_modules")) {
-        moduleFolders.push(path) ;
-        continue;
-      }
-      await getfolders(path);
-    }
-    return;
-  }
+	for (const folder of stack) {
+		await getfolders(folder);
+	}
 
-  console.log(pc.greenBright(pc.bold(`${moduleFolders.length} module folders found`)));
-  return moduleFolders;
-}
+	async function getfolders(folder: string): Promise<void> {
+		const entries = await readdir(folder, { withFileTypes: true });
 
+		for (const entry of entries) {
+			if (!entry.isDirectory() || entry.name.endsWith(".app")) continue;
+			const path = `${entry.parentPath}/${entry.name}`;
+
+			if (entry.name === "node_modules") {
+				moduleFolders.push({ label: path, value: path });
+				continue;
+			}
+			await getfolders(path);
+		}
+		return;
+	}
+
+	console.log(
+		pc.greenBright(pc.bold(`${moduleFolders.length} module folders found`)),
+	);
+
+	return moduleFolders;
+
+const deleteModule = async (module: string): Promise<void> => {
+	console.log(pc.greenBright(pc.bold(`Deleting module: ${module}`)));
+	await rm(module, { recursive: true });
+};
