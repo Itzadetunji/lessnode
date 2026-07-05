@@ -4,7 +4,7 @@ import os from "node:os";
 import { promisify } from "node:util";
 import { confirm, multiselect } from "@clack/prompts";
 import pc from "picocolors";
-import type { ModuleFolder } from "./types";
+import type { ModuleFolder } from "./types.js";
 
 const LESSNODE_ASCII = String.raw`
  _     _____ ____ ____  _   _  ___  ____  _____

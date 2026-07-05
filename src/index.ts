@@ -3,8 +3,8 @@
 import os from "node:os";
 import { intro, outro } from "@clack/prompts";
 import pc from "picocolors";
-import { lessNodeMac } from "./mac";
-import { type OsType, osTypes } from "./types";
+import { lessNodeMac } from "./mac.js";
+import { type OsType, osTypes } from "./types.js";
 
 intro(pc.bgCyan(pc.white("lessnode")));
 
