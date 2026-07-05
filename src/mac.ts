@@ -19,7 +19,7 @@ export async function lessNodeMac() {
 	const rootFolders = await selectRootFolders();
 	const moduleFolders = await selectModuleFolders(rootFolders);
 
-	console.log("Click to go to the folder");
+	// console.log("Click to go to the folder");
 
 	const selectedModules =
 		(await multiselect({
@@ -81,7 +81,7 @@ const selectModuleFolders = async (
 	entries.forEach((entry) => {
 		if (!entry.isDirectory() || entry.name.endsWith(".app")) return;
 		stack.push(`${entry.parentPath}/${entry.name}`);
-		console.log(`${entry.parentPath}/${entry.name}`);
+		// console.log(`${entry.parentPath}/${entry.name}`);
 	});
 	console.log("\n");
 	console.log(pc.greenBright(pc.bold(`Stack: ${stack.join(", ")}`)));
