@@ -2,7 +2,7 @@ import { exec } from "node:child_process";
 import { readdir, rm } from "node:fs/promises";
 import os from "node:os";
 import { promisify } from "node:util";
-import { multiselect } from "@clack/prompts";
+import { confirm, multiselect } from "@clack/prompts";
 import pc from "picocolors";
 import type { ModuleFolder } from "./types";
 
@@ -35,9 +35,9 @@ export async function lessNodeMac() {
 
 	console.log("\n");
 
-	const confirmDelete = await confirm(
-		"Are you sure you want to delete the modules?",
-	);
+	const confirmDelete = await confirm({
+		message: "Are you sure you want to delete the modules?",
+	});
 
 	if (confirmDelete) {
 		for (const module of selectedModules as unknown as ModuleFolder[]) {
