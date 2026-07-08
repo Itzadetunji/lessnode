@@ -1,4 +1,5 @@
 import { exec } from "node:child_process";
+import type { Dirent } from "node:fs";
 import { readdir, rm } from "node:fs/promises";
 import os from "node:os";
 import { join } from "node:path";
@@ -83,36 +84,35 @@ const selectModuleFolders = async (
 		return [];
 	}
 
-	const entries = await readdir(folders[0], { withFileTypes: true });
 	const stack: string[] = [];
 	const moduleFolders: ModuleFolder[] = [];
 
-	entries.forEach((entry) => {
-		if (!entry.isDirectory() || entry.name.endsWith(".app")) return;
-		stack.push(join(entry.parentPath, entry.name));
-		// console.log(`${entry.parentPath}/${entry.name}`);
-	});
+	for (const rootFolder of folders) {
+		const entries = await safeReaddir(rootFolder);
+		for (const entry of entries) {
+			if (!entry.isDirectory() || entry.name.endsWith(".app")) continue;
+			stack.push(join(entry.parentPath, entry.name));
+		}
+	}
 	console.log("\n");
-	// console.log(pc.greenBright(pc.bold(`Stack: ${stack.join(", ")}`)));
 
 	for (const folder of stack) {
 		await getfolders(folder);
 	}
 
 	async function getfolders(folder: string): Promise<void> {
-		const entries = await readdir(folder, { withFileTypes: true });
+		const entries = await safeReaddir(folder);
 
 		for (const entry of entries) {
 			if (!entry.isDirectory() || entry.name.endsWith(".app")) continue;
 			const path = join(entry.parentPath, entry.name);
 
 			if (entry.name === "node_modules") {
-				moduleFolders.push({ label: await path, value: path });
+				moduleFolders.push({ label: path, value: path });
 				continue;
 			}
 			await getfolders(path);
 		}
-		return;
 	}
 
 	console.log(
@@ -120,6 +120,27 @@ const selectModuleFolders = async (
 	);
 
 	return moduleFolders;
+};
+
+const safeReaddir = async (folder: string): Promise<Dirent[]> => {
+	try {
+		return await readdir(folder, { withFileTypes: true });
+	} catch (error) {
+		if (
+			error &&
+			typeof error === "object" &&
+			"code" in error &&
+			(error.code === "EPERM" || error.code === "EACCES")
+		) {
+			console.log(
+				pc.yellow(
+					`Skipping "${folder}" (permission denied — grant Terminal access under System Settings → Privacy & Security → Files and Folders)`,
+				),
+			);
+			return [];
+		}
+		throw error;
+	}
 };
 
 const deleteModule = async (module: string): Promise<void> => {
