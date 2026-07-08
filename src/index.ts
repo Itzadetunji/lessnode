@@ -21,10 +21,5 @@ if (detectedOs === "Windows") {
 	console.log(pc.green(pc.bold("Linux detected")));
 }
 
-// if (isCancel(mode)) {
-// 	cancel("No mode selected");
-// 	process.exit(0);
-// }
-
 // then run your scan function here...
 outro(pc.green("Done."));

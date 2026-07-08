@@ -2,7 +2,7 @@ import { exec } from "node:child_process";
 import { readdir, rm } from "node:fs/promises";
 import os from "node:os";
 import { promisify } from "node:util";
-import { confirm, multiselect } from "@clack/prompts";
+import { cancel, confirm, isCancel, multiselect, outro } from "@clack/prompts";
 import pc from "picocolors";
 import type { ModuleFolder } from "./types.js";
 
@@ -17,15 +17,25 @@ const LESSNODE_ASCII = String.raw`
 export async function lessNodeMac() {
 	console.log(pc.cyanBright(pc.bold(LESSNODE_ASCII)));
 	const rootFolders = await selectRootFolders();
+	if (rootFolders.length === 0) {
+		exitCancelled("No root folder selected.");
+	}
+
 	const moduleFolders = await selectModuleFolders(rootFolders);
+	if (moduleFolders.length === 0) {
+		exitCancelled("No node_modules folders found.");
+	}
 
 	// console.log("Click to go to the folder");
 
-	const selectedModules =
-		(await multiselect({
-			message: "Select your modules",
-			options: moduleFolders,
-		})) ?? [];
+	const selectedModulesInput = await multiselect({
+		message: "Select your modules",
+		options: moduleFolders,
+	});
+	if (isCancel(selectedModulesInput)) {
+		exitCancelled("Module selection cancelled.");
+	}
+	const selectedModules = selectedModulesInput ?? [];
 
 	console.log(pc.greenBright(pc.bold(`Deleting these modules 👇\n`)));
 
@@ -39,13 +49,14 @@ export async function lessNodeMac() {
 		message: "Are you sure you want to delete the modules?",
 	});
 
+	if (isCancel(confirmDelete) || !confirmDelete) {
+		exitCancelled("Cancelled node cleanup.");
+	}
+
 	if (confirmDelete) {
 		for (const module of selectedModules as unknown as ModuleFolder[]) {
 			await deleteModule(module.value);
 		}
-	} else {
-		console.log(pc.yellowBright(pc.bold("\nCancelled node cleanup")));
-		process.exit(0);
 	}
 }
 
@@ -62,18 +73,24 @@ const selectRootFolders = async (): Promise<string[]> => {
 		})
 		.sort((a, b) => a.label.localeCompare(b.label));
 
-	const rootFoldersSelect =
-		(await multiselect({
-			message: "Select your root folders",
-			options: rootFolders,
-		})) ?? [];
+	const rootFoldersSelect = await multiselect({
+		message: "Select your root folders",
+		options: rootFolders,
+	});
+	if (isCancel(rootFoldersSelect)) {
+		exitCancelled("Root folder selection cancelled.");
+	}
 
-	return rootFoldersSelect as string[];
+	return (rootFoldersSelect ?? []) as string[];
 };
 
 const selectModuleFolders = async (
 	folders: string[],
 ): Promise<ModuleFolder[]> => {
+	if (folders.length === 0) {
+		return [];
+	}
+
 	const entries = await readdir(folders[0], { withFileTypes: true });
 	const stack: string[] = [];
 	const moduleFolders: ModuleFolder[] = [];
@@ -84,13 +101,13 @@ const selectModuleFolders = async (
 		// console.log(`${entry.parentPath}/${entry.name}`);
 	});
 	console.log("\n");
-	console.log(pc.greenBright(pc.bold(`Stack: ${stack.join(", ")}`)));
+	// console.log(pc.greenBright(pc.bold(`Stack: ${stack.join(", ")}`)));
 
 	for (const folder of stack) {
 		await getfolders(folder);
 	}
 
-	async function getfolders(folder: string): Promise<ModuleFolder[]> {
+	async function getfolders(folder: string): Promise<void> {
 		const entries = await readdir(folder, { withFileTypes: true });
 
 		for (const entry of entries) {
@@ -103,7 +120,7 @@ const selectModuleFolders = async (
 			}
 			await getfolders(path);
 		}
-		return [];
+		return;
 	}
 
 	console.log(
@@ -121,4 +138,10 @@ const deleteModule = async (module: string): Promise<void> => {
 async function _getFolderSize(path: string): Promise<string> {
 	const { stdout } = await promisify(exec)(`du -sh "${path}"`);
 	return stdout.trim();
+}
+
+function exitCancelled(message: string): never {
+	cancel(message);
+	outro(pc.yellow(pc.bold("Exiting lessnode. No changes were made.")));
+	process.exit(0);
 }
