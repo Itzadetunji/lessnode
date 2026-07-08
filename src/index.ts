@@ -26,7 +26,7 @@ by Adetunji - https://github.com/Itzadetunji
 console.log(pc.cyanBright(pc.bold(LESSNODE_ASCII)));
 
 if (detectedOs === "Windows") {
-	console.log(pc.green(pc.bold("Windows detected")));
+	await lessNodeMac();
 } else if (detectedOs === "Mac") {
 	await lessNodeMac();
 } else if (detectedOs === "Linux") {
