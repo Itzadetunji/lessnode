@@ -4,7 +4,7 @@
 
 ## What it does
 
-- Detects your OS and runs the macOS cleanup flow.
+- Detects your OS and runs the cleanup flow.
 - Lets you pick one or more root folders from your home directory.
 - Recursively finds nested `node_modules` folders.
 - Shows the results in an interactive multi-select prompt.
