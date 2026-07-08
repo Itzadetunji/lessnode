@@ -3,7 +3,7 @@
 import os from "node:os";
 import { intro, outro } from "@clack/prompts";
 import pc from "picocolors";
-import { lessNodeMac } from "./mac.js";
+import { lessNodeExecute } from "./app.js";
 import { type OsType, osTypes } from "./types.js";
 
 intro(pc.bgCyan(pc.white("lessnode")));
@@ -25,13 +25,7 @@ by Adetunji - https://github.com/Itzadetunji
 
 console.log(pc.cyanBright(pc.bold(LESSNODE_ASCII)));
 
-if (detectedOs === "Windows") {
-	await lessNodeMac();
-} else if (detectedOs === "Mac") {
-	await lessNodeMac();
-} else if (detectedOs === "Linux") {
-	console.log(pc.green(pc.bold("Linux detected")));
-}
+await lessNodeExecute();
 
 // then run your scan function here...
 outro(pc.green("Done."));

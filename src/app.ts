@@ -7,7 +7,7 @@ import { cancel, confirm, isCancel, multiselect, outro } from "@clack/prompts";
 import pc from "picocolors";
 import type { ModuleFolder } from "./types.js";
 
-export async function lessNodeMac() {
+export async function lessNodeExecute() {
 	const rootFolders = await selectRootFolders();
 	if (rootFolders.length === 0) {
 		exitCancelled("No root folder selected.");
@@ -31,8 +31,8 @@ export async function lessNodeMac() {
 
 	console.log(pc.greenBright(pc.bold(`Deleting these modules 👇\n`)));
 
-	for (const module of selectedModules as unknown as ModuleFolder[]) {
-		console.log(pc.greenBright(pc.bold(module.label)));
+	for (const module of selectedModules) {
+		console.log(pc.greenBright(pc.bold(module)));
 	}
 
 	console.log("\n");
@@ -46,8 +46,8 @@ export async function lessNodeMac() {
 	}
 
 	if (confirmDelete) {
-		for (const module of selectedModules as unknown as ModuleFolder[]) {
-			await deleteModule(module.value);
+		for (const module of selectedModules) {
+			await deleteModule(module);
 		}
 	}
 }
