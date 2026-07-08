@@ -13,6 +13,18 @@ const detectedOs = osTypes[osDetails];
 
 console.log(pc.green(pc.bold(`Detected OS: ${detectedOs}`)));
 
+const LESSNODE_ASCII = String.raw`
+ _     _____ ____ ____  _   _  ___  ____  _____
+| |   | ____/ ___/ ___|| \ | |/ _ \|  _ \| ____|
+| |   |  _| \___ \___ \|  \| | | | | | | |  _|
+| |___| |___ ___) |__) | |\  | |_| | |_| | |___
+|_____|_____|____/____/|_| \_|\___/|____/|_____|
+
+by Adetunji - https://github.com/Itzadetunji
+`;
+
+console.log(pc.cyanBright(pc.bold(LESSNODE_ASCII)));
+
 if (detectedOs === "Windows") {
 	console.log(pc.green(pc.bold("Windows detected")));
 } else if (detectedOs === "Mac") {

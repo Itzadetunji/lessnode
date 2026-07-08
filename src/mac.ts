@@ -6,16 +6,7 @@ import { cancel, confirm, isCancel, multiselect, outro } from "@clack/prompts";
 import pc from "picocolors";
 import type { ModuleFolder } from "./types.js";
 
-const LESSNODE_ASCII = String.raw`
- _     _____ ____ ____  _   _  ___  ____  _____
-| |   | ____/ ___/ ___|| \ | |/ _ \|  _ \| ____|
-| |   |  _| \___ \___ \|  \| | | | | | | |  _|
-| |___| |___ ___) |__) | |\  | |_| | |_| | |___
-|_____|_____|____/____/|_| \_|\___/|____/|_____|
-`;
-
 export async function lessNodeMac() {
-	console.log(pc.cyanBright(pc.bold(LESSNODE_ASCII)));
 	const rootFolders = await selectRootFolders();
 	if (rootFolders.length === 0) {
 		exitCancelled("No root folder selected.");
