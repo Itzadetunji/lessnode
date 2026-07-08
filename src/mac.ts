@@ -1,6 +1,7 @@
 import { exec } from "node:child_process";
 import { readdir, rm } from "node:fs/promises";
 import os from "node:os";
+import { join } from "node:path";
 import { promisify } from "node:util";
 import { cancel, confirm, isCancel, multiselect, outro } from "@clack/prompts";
 import pc from "picocolors";
@@ -59,7 +60,7 @@ const selectRootFolders = async (): Promise<string[]> => {
 		.map((entry) => {
 			return {
 				label: entry.name,
-				value: `${entry.parentPath}/${entry.name}`,
+				value: join(entry.parentPath, entry.name),
 			};
 		})
 		.sort((a, b) => a.label.localeCompare(b.label));
@@ -88,7 +89,7 @@ const selectModuleFolders = async (
 
 	entries.forEach((entry) => {
 		if (!entry.isDirectory() || entry.name.endsWith(".app")) return;
-		stack.push(`${entry.parentPath}/${entry.name}`);
+		stack.push(join(entry.parentPath, entry.name));
 		// console.log(`${entry.parentPath}/${entry.name}`);
 	});
 	console.log("\n");
@@ -103,7 +104,7 @@ const selectModuleFolders = async (
 
 		for (const entry of entries) {
 			if (!entry.isDirectory() || entry.name.endsWith(".app")) continue;
-			const path = `${entry.parentPath}/${entry.name}`;
+			const path = join(entry.parentPath, entry.name);
 
 			if (entry.name === "node_modules") {
 				moduleFolders.push({ label: await path, value: path });

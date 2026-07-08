@@ -1,6 +1,6 @@
 {
 	"name": "lessnode",
-	"version": "0.2.5",
+	"version": "0.2.6",
 	"description": "Interactive CLI to find and safely delete node_modules folders from selected directories on macOS.",
 	"author": "Adetunji Adeyinka",
 	"license": "MIT",
